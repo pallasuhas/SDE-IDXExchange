@@ -1,0 +1,18 @@
+# Data files — never commit (per IDX guidelines)
+*.sql
+*.csv
+*.xlsx
+
+# Node
+node_modules/
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
