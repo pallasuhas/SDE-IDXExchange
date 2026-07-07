@@ -13,7 +13,8 @@ Build a full-stack property search experience: a React frontend, a Node/Express 
 ## Status
 - [x] Week 1 — Environment setup & database import
 - [x] Week 2 — Backend foundation + REST API (Express server + `/api/health`)
-- [ ] Week 3 — Property search endpoint with filters & indexing
+- [x] Week 3 — Property search endpoint with filters, pagination & indexes
+- [ ] Week 4 — Property detail & open house endpoints
 
 ## How to Run
 
@@ -30,7 +31,29 @@ npm run dev
 ```
 The API runs on http://localhost:5001 (port 5000 is reserved by macOS AirPlay).
 
-Health check: `GET /api/health` → `{ "status": "ok", "database": "connected" }`
+## API Endpoints
+
+### `GET /api/health`
+Returns `{ "status": "ok", "database": "connected" }` when the DB is reachable.
+
+### `GET /api/properties`
+Paginated, filterable property search.
+
+Query parameters:
+- `city` — case-insensitive match on city name
+- `zipcode` — exact ZIP match
+- `minPrice`, `maxPrice` — numeric price bounds
+- `beds` — minimum number of bedrooms
+- `baths` — minimum number of bathrooms
+- `limit` — page size, 1–100 (default 20)
+- `offset` — records to skip (default 0)
+
+Response shape:
+```json
+{ "total": 87, "limit": 20, "offset": 0, "results": [...] }
+```
+
+Invalid inputs return HTTP 400 with an explanatory message.
 
 ## Environment Variables
 The backend reads from a `backend/.env` file (not committed). Required keys:
