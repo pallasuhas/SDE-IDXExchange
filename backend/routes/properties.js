@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
-// GET /api/properties
+// -------- GET /api/properties (Week 3) --------
 router.get("/", async (req, res) => {
   try {
     const { city, zipcode, minPrice, maxPrice, beds, baths } = req.query;
@@ -82,6 +82,71 @@ router.get("/", async (req, res) => {
     res.json({ total, limit, offset, results: rows });
   } catch (err) {
     console.error("GET /api/properties failed:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// -------- Helper: validate a listing ID --------
+function validateListingId(id) {
+  if (typeof id !== "string" || id.length === 0 || id.length > 64) return false;
+  if (!/^[A-Za-z0-9_-]+$/.test(id)) return false;
+  return true;
+}
+
+// -------- GET /api/properties/:id/openhouses (Week 4) --------
+// Must be registered BEFORE /:id or Express matches "abc/openhouses" as :id.
+router.get("/:id/openhouses", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!validateListingId(id)) {
+      return res.status(400).json({ error: "invalid listing id" });
+    }
+
+    const [propRows] = await pool.query(
+      "SELECT L_ListingID FROM rets_property WHERE L_ListingID = ? LIMIT 1",
+      [id]
+    );
+    if (propRows.length === 0) {
+      return res.status(404).json({ error: "property not found" });
+    }
+
+    const [ohRows] = await pool.query(
+      `SELECT L_ListingID, OpenHouseDate, OH_StartTime, OH_EndTime, all_data
+         FROM rets_openhouse
+        WHERE L_ListingID = ?
+        ORDER BY OpenHouseDate ASC, OH_StartTime ASC`,
+      [id]
+    );
+
+    res.json(ohRows);
+  } catch (err) {
+    console.error(`GET /api/properties/${req.params.id}/openhouses failed:`, err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// -------- GET /api/properties/:id (Week 4) --------
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!validateListingId(id)) {
+      return res.status(400).json({ error: "invalid listing id" });
+    }
+
+    const [rows] = await pool.query(
+      "SELECT * FROM rets_property WHERE L_ListingID = ? LIMIT 1",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "property not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(`GET /api/properties/${req.params.id} failed:`, err.message);
     res.status(500).json({ error: "Internal server error" });
   }
 });

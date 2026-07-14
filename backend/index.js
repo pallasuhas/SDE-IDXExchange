@@ -8,7 +8,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());        // allow the React dev server (port 3000) to call this API
-app.use(express.json()); // parse JSON request bodies
+app.use(express.json());
+
+// Request logger: prints METHOD URL STATUS DURATIONms for every response.
+app.use((req, res, next) => {
+  const start = process.hrtime.bigint();
+  res.on("finish", () => {
+    const ms = Number(process.hrtime.bigint() - start) / 1e6;
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${ms.toFixed(1)}ms`);
+  });
+  next();
+});
+ // parse JSON request bodies
 
 // Health check: verifies the API is up AND the database is reachable.
 app.get("/api/health", async (req, res) => {
