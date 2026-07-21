@@ -6,7 +6,7 @@ A Zillow/Redfin-style property search app backed by real MLS data, built as part
 Build a full-stack property search experience: a React frontend, a Node/Express REST API, and a MySQL database populated from MLS data.
 
 ## Tech Stack
-- Frontend: React
+- Frontend: React (Create React App)
 - Backend: Node.js + Express
 - Database: MySQL 8 (Docker)
 
@@ -15,19 +15,31 @@ Build a full-stack property search experience: a React frontend, a Node/Express 
 - [x] Week 2 — Backend foundation + REST API (Express server + /api/health)
 - [x] Week 3 — Property search endpoint with filters, pagination & indexes
 - [x] Week 4 — Property detail & open house endpoints + request-logging middleware
-- [ ] Week 5 — React setup & listings page
+- [x] Week 5 — React frontend with property listings grid
+- [ ] Week 6 — Filter UI + unit tests
 
 ## How to Run
 
 Start the database:
     docker start idx-mysql-local
 
-Start the backend:
+Start the backend (port 5001):
     cd backend
     npm install
     npm run dev
 
-The API runs on http://localhost:5001 (port 5000 is reserved by macOS AirPlay).
+Start the frontend (port 3000):
+    cd frontend
+    npm install
+    npm start
+
+The React app proxies /api/* requests to the backend on port 5001.
+
+## Architecture
+
+React (3000) -> Express API (5001) -> MySQL (3306, Docker)
+
+React never talks to MySQL directly; all data flows through the Express API.
 
 ## API Endpoints
 
